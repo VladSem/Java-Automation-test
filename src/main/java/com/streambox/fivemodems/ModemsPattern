@@ -1,0 +1,297 @@
+package com.streambox.fivemodems;
+
+import org.openqa.selenium.By;
+
+/**
+ * Created by vlad on 4/7/15.
+ */
+public class ModemsPattern extends AvenirWebDriver {
+
+    private LogModemsWrite logger = new LogModemsWrite();
+    private FindTextOnWebPage modemFirmware = new FindTextOnWebPage();
+    private FindTextOnWebPage findText = new FindTextOnWebPage();
+    private boolean ifConfigButtonExist;
+
+    private boolean firmware_att_tmobile_MC7354_US_05_05_16_02;
+    private boolean firmware_att_tmobile_MC7304_US_05_05_16_02;
+    private boolean firmware_att_tmobile_MC7700_US_03_05_20_03AP;
+    private boolean firmware_verizon_MC7354_US_05_05_16_03;
+    private boolean firmware_verizon_MC7750_03_05_10_04AP;
+    private boolean firmware_verizon_MC7750_03_05_10_09AP;
+    private boolean firmware_att_tmobile_MC7710_US_03_05_24_00AP;
+    private boolean firmware_att_tmobile_ME909u521_11_234_77_00_00;
+    private boolean firmware_att_tmobile_MC7700_US_03_05_14_00AP;
+
+    private String modemName;
+    private String getModemName;
+
+    private String firmware1;
+    private String firmware2;
+
+    private APN_and_PhoneNo_Validator apn_and_phoneNo_validator = new APN_and_PhoneNo_Validator();
+    private ModemName_IMEI_Firmware_Validator modemNameValidator = new ModemName_IMEI_Firmware_Validator();
+
+    CarrierValidator carrierValidator = new CarrierValidator();
+
+    public void setModemsPatternSettings(String imeiPath, String modemNamePath, String pathToModemLogFile, String modem,
+                                         String buttonConfig, String buttonTerminate, String buttonReconnect, String pathToCarrierDetection) {
+
+        try {
+
+            ifConfigButtonExist = driver.findElements(By.xpath(buttonConfig)).size() > 0;
+
+
+            if (ifConfigButtonExist) {
+
+                driver.findElement(By.xpath(buttonConfig)).click();
+
+                firmware_att_tmobile_MC7354_US_05_05_16_02 = modemFirmware.checkText("SWI9X15C_05.05.16.02");
+                //firmware_att_tmobile_MC7304_US_05_05_16_02 = modemFirmware.checkText("SWI9X15C_05.05.16.02");
+                firmware_att_tmobile_MC7700_US_03_05_20_03AP = modemFirmware.checkText("SWI9200X_03.05.20.03ap");
+                firmware_verizon_MC7354_US_05_05_16_03 = modemFirmware.checkText("SWI9X15C_05.05.16.03");
+                firmware_verizon_MC7750_03_05_10_04AP = modemFirmware.checkText("SWI9600M_03.05.10.04AP");
+                firmware_verizon_MC7750_03_05_10_09AP = modemFirmware.checkText("SWI9600M_03.05.10.09ap");
+                firmware_att_tmobile_MC7710_US_03_05_24_00AP = modemFirmware.checkText("SWI9200X_03.05.24.00ap");
+                firmware_att_tmobile_ME909u521_11_234_77_00_00 = modemFirmware.checkText("11.234.77.00.00");
+                firmware_att_tmobile_MC7700_US_03_05_14_00AP = modemFirmware.checkText("SWI9200X_03.05.14.00AP");
+
+                if (firmware_att_tmobile_MC7354_US_05_05_16_02) {
+
+
+                    getModemName = findText.checkString(modemNamePath);
+
+                    if (getModemName.equals("MC7354")) {
+
+                        //modemName = "MC7354";
+                        firmware1 = "  05.05.16.02";
+                        firmware2 = ", or 05.05.16.03";
+                        logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                        //logger.modemsLogs('\t' + "IMEI: " + imeiNumber, pathToModemLogFile);
+                        modemNameValidator.check_modem_name(imeiPath, getModemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                        apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                        carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                    } else if (getModemName.equals("MC7304")) {
+
+                        firmware1 = "  05.05.16.02";
+                        firmware2 = "";
+                        logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                        //logger.modemsLogs('\t' + "IMEI: " + imeiNumber, pathToModemLogFile);
+                        modemNameValidator.check_modem_name(imeiPath, getModemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                        apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                        carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+                    }
+
+                } else if (firmware_verizon_MC7354_US_05_05_16_03) {
+
+                    modemName = "MC7354";
+                    firmware1 = "  05.05.16.03";
+                    firmware2 = ", or 05.05.16.02";
+                    logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                    modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                    apn_and_phoneNo_validator.verizon_APN_PhoneN_validator(buttonReconnect, pathToModemLogFile);
+
+                    carrierValidator.carrierVerification_verizon(pathToCarrierDetection, pathToModemLogFile);
+
+                } else if (firmware_verizon_MC7750_03_05_10_04AP) {
+
+                    modemName = "MC7750";
+                    firmware1 = "03.05.10.04AP";
+                    firmware2 = "";
+                    logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                    modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                    apn_and_phoneNo_validator.verizon_APN_PhoneN_validator(buttonReconnect, pathToModemLogFile);
+
+                    carrierValidator.carrierVerification_verizon(pathToCarrierDetection, pathToModemLogFile);
+
+                } else if (firmware_verizon_MC7750_03_05_10_09AP) {
+
+                    modemName = "MC7750";
+                    firmware1 = "03.05.10.09AP";
+                    firmware2 = "";
+                    logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                    modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                    apn_and_phoneNo_validator.verizon_APN_PhoneN_validator(buttonReconnect, pathToModemLogFile);
+
+                    carrierValidator.carrierVerification_verizon(pathToCarrierDetection, pathToModemLogFile);
+
+                } else if (firmware_att_tmobile_MC7700_US_03_05_20_03AP) {
+
+                    modemName = "MC7700";
+                    firmware1 = "03.05.20.03AP";
+                    firmware2 = "";
+                    logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                    modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                    apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                    carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                } else if (firmware_att_tmobile_MC7710_US_03_05_24_00AP) {
+
+                    modemName = "MC7710";
+                    firmware1 = "03.05.24.00AP";
+                    firmware2 = "";
+                    logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                    modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                    apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                    carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                } else if (firmware_att_tmobile_ME909u521_11_234_77_00_00) {
+
+                    modemName = "ME909u-521";
+                    firmware1 = "11.234.77.00.00";
+                    firmware2 = "";
+                    logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                    modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                    apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                    carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                } else if (firmware_att_tmobile_MC7700_US_03_05_14_00AP) {
+
+                    modemName = "MC7700";
+                    firmware1 = "03.05.14.00AP";
+                    firmware2 = "";
+                    logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                    modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                    apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                    carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                } else {
+//todo need to fix terminate button
+                    driver.findElement(By.xpath(buttonTerminate)).click();
+
+                    firmware_att_tmobile_MC7354_US_05_05_16_02 = modemFirmware.checkText("SWI9X15C_05.05.16.02");
+                    firmware_att_tmobile_MC7304_US_05_05_16_02 = modemFirmware.checkText("SWI9X15C_05.05.16.02");
+                    firmware_att_tmobile_MC7700_US_03_05_20_03AP = modemFirmware.checkText("SWI9200X_03.05.20.03ap");
+                    firmware_verizon_MC7354_US_05_05_16_03 = modemFirmware.checkText("SWI9X15C_05.05.16.03");
+                    firmware_verizon_MC7750_03_05_10_04AP = modemFirmware.checkText("SWI9600M_03.05.10.04AP");
+                    firmware_verizon_MC7750_03_05_10_09AP = modemFirmware.checkText("SWI9600M_03.05.10.09ap");
+                    firmware_att_tmobile_MC7700_US_03_05_14_00AP = modemFirmware.checkText("SWI9200X_03.05.14.00AP");
+
+                    if (firmware_att_tmobile_MC7354_US_05_05_16_02) {
+
+
+                        getModemName = findText.checkString(modemNamePath);
+
+                        if (getModemName.equals("MC7354")) {
+
+                            //modemName = "MC7354";
+                            firmware1 = "  05.05.16.02";
+                            firmware2 = ", or 05.05.16.03";
+                            logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                            //logger.modemsLogs('\t' + "IMEI: " + imeiNumber, pathToModemLogFile);
+                            modemNameValidator.check_modem_name(imeiPath, getModemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                            apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                            carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                        } else if (getModemName.equals("MC7304")) {
+
+                            firmware1 = "  05.05.16.02";
+                            firmware2 = "";
+                            logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                            //logger.modemsLogs('\t' + "IMEI: " + imeiNumber, pathToModemLogFile);
+                            modemNameValidator.check_modem_name(imeiPath, getModemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                            apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                            carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+                        }
+
+                    } else if (firmware_verizon_MC7354_US_05_05_16_03) {
+
+                        modemName = "MC7354";
+                        firmware1 = "  05.05.16.03";
+                        firmware2 = ", or 05.05.16.02";
+                        logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                        modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                        apn_and_phoneNo_validator.verizon_APN_PhoneN_validator(buttonReconnect, pathToModemLogFile);
+
+                        carrierValidator.carrierVerification_verizon(pathToCarrierDetection, pathToModemLogFile);
+
+                    } else if (firmware_verizon_MC7750_03_05_10_04AP) {
+
+                        modemName = "MC7750";
+                        firmware1 = "03.05.10.04AP";
+                        firmware2 = "";
+                        logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                        modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                        apn_and_phoneNo_validator.verizon_APN_PhoneN_validator(buttonReconnect, pathToModemLogFile);
+
+                        carrierValidator.carrierVerification_verizon(pathToCarrierDetection, pathToModemLogFile);
+
+                    } else if (firmware_verizon_MC7750_03_05_10_09AP) {
+
+                        modemName = "MC7750";
+                        firmware1 = "03.05.10.09AP";
+                        firmware2 = "";
+                        logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                        modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                        apn_and_phoneNo_validator.verizon_APN_PhoneN_validator(buttonReconnect, pathToModemLogFile);
+
+                        carrierValidator.carrierVerification_verizon(pathToCarrierDetection, pathToModemLogFile);
+
+                    } else if (firmware_att_tmobile_MC7700_US_03_05_20_03AP) {
+
+                        modemName = "MC7700";
+                        firmware1 = "03.05.20.03AP";
+                        firmware2 = "";
+                        logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                        modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                        apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                        carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                    } else if (firmware_att_tmobile_MC7710_US_03_05_24_00AP) {
+
+                        modemName = "MC7710";
+                        firmware1 = "03.05.24.00AP";
+                        firmware2 = "";
+                        logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                        modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                        apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                        carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                    } else if (firmware_att_tmobile_ME909u521_11_234_77_00_00) {
+
+                        modemName = "ME909u-521";
+                        firmware1 = "11.234.77.00.00";
+                        firmware2 = "";
+                        logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                        modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                        apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                        carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                    } else if (firmware_att_tmobile_MC7700_US_03_05_14_00AP) {
+
+                        modemName = "MC7700";
+                        firmware1 = "03.05.14.00AP";
+                        firmware2 = "";
+                        logger.modemsLogs('\t' + modem + "\r\n", pathToModemLogFile);
+                        modemNameValidator.check_modem_name(imeiPath, modemName, modemNamePath, firmware1, firmware2, pathToModemLogFile);
+                        apn_and_phoneNo_validator.att_tmob_validator(buttonReconnect, pathToModemLogFile);
+
+                        carrierValidator.carrierVerification_att_tmob(pathToCarrierDetection, pathToModemLogFile);
+
+                    } else {
+
+                    }
+
+                }
+
+            }
+        } catch (Exception e) {
+
+            logger.modemsLogs('\t' + "Try again, something wrong                                    " + "Test failed", pathToModemLogFile);
+            logger.modemsLogs("\t" + modem, pathToModemLogFile);
+        }
+
+    }
+
+}
